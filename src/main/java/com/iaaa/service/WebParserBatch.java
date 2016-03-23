@@ -28,15 +28,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-@Component
-public class WebParser {
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-    private static final String userAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
-    private static final String baseLink = "http://www.asp.state.ar.us/fatal/";
-    private static final String reportLinks = baseLink + "index.php?do=reportsLinks&year=";
+//@Component
+public class WebParserBatch {
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+    private String userAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
+    private String baseLink = "http://www.asp.state.ar.us/fatal/";
+    private String reportLinks = baseLink + "index.php?do=reportsLinks&year=";
     private int year = 2004;
-    @Scheduled(fixedRate = 1000000000)
+    //@Scheduled(fixedRate = 1000000000)
     public void parseAllReportLinks() {
+
         try {
 
             List<Accident> accidentList = new ArrayList<Accident>();
@@ -142,5 +143,7 @@ public class WebParser {
         System.out.println(accident.toString());
         return accident;
     }
+
+
 }
 
