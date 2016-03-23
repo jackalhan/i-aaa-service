@@ -35,7 +35,7 @@ public class WebParserBatch {
     private String baseLink = "http://www.asp.state.ar.us/fatal/";
     private String reportLinks = baseLink + "index.php?do=reportsLinks&year=";
     private int year = 2004;
-    //@Scheduled(fixedRate = 1000000000)
+    @Scheduled(fixedRate = 1000000000)
     public void parseAllReportLinks() {
 
         try {
@@ -57,8 +57,8 @@ public class WebParserBatch {
                         i = 0;
                         TimeUnit.SECONDS.sleep(10);
                     }
-                    i++;
-                    if (link.attr("href").contains("accident_number")) {
+                    //i++;
+                    if (link.attr("href").contains("accident_number=595")) {
                         /*System.out.println("\n Accepted link : " + link.attr("href"));
                         System.out.println("\nlink : " + link.attr("href"));
                         System.out.println("\ntext : " + link.text());*/
