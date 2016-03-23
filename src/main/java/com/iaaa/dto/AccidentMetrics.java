@@ -5,27 +5,18 @@ package com.iaaa.dto;
  */
 public class AccidentMetrics implements Cloneable {
 
-    private float latOfVehicle;
-    private float longOfVehicle;
+    private Coordinates coordinates;
     private int speedOfVehicle;
     private String weatherCondition;
     private String roadCondition;
     private int speedLimitOfRoad;
 
-    public float getLatOfVehicle() {
-        return latOfVehicle;
+    public Coordinates getCoordinates() {
+        return coordinates;
     }
 
-    public void setLatOfVehicle(float latOfVehicle) {
-        this.latOfVehicle = latOfVehicle;
-    }
-
-    public float getLongOfVehicle() {
-        return longOfVehicle;
-    }
-
-    public void setLongOfVehicle(float longOfVehicle) {
-        this.longOfVehicle = longOfVehicle;
+    public void setCoordinates(Coordinates coordinates) {
+        this.coordinates = coordinates;
     }
 
     public int getSpeedOfVehicle() {
@@ -57,9 +48,8 @@ public class AccidentMetrics implements Cloneable {
         this.speedLimitOfRoad = speedLimitOfRoad;
     }
 
-    public AccidentMetrics(float latOfVehicle, float longOfVehicle, int speedOfVehicle) {
-        this.latOfVehicle = latOfVehicle;
-        this.longOfVehicle = longOfVehicle;
+    public AccidentMetrics(Coordinates coordinates, int speedOfVehicle) {
+        this.coordinates = coordinates;
         this.speedOfVehicle = speedOfVehicle;
     }
 
@@ -71,8 +61,7 @@ public class AccidentMetrics implements Cloneable {
     @Override
     public String toString() {
         return "AccidentMetrics{" +
-                "latOfVehicle=" + latOfVehicle +
-                ", longOfVehicle=" + longOfVehicle +
+                "coordinates=" + coordinates +
                 ", speedOfVehicle=" + speedOfVehicle +
                 ", weatherCondition='" + weatherCondition + '\'' +
                 ", roadCondition='" + roadCondition + '\'' +
