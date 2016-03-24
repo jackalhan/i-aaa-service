@@ -3,8 +3,10 @@ package com.iaaa.service;
 import com.iaaa.dto.AccidentMetrics;
 import com.iaaa.dto.AnyAccidentResponse;
 import com.iaaa.dto.Coordinates;
+import com.iaaa.outsource.GoogleRoadsApi;
+import com.iaaa.outsource.HereRouteApi;
 import com.iaaa.outsource.WeatherDataApi;
-import com.iaaa.outsource.dto.WeatherDataApiResponse;
+import com.iaaa.outsource.dto.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,31 +23,42 @@ public class AnyAccidentController {
     private final AtomicLong counter = new AtomicLong();
 
     // Rest sample query link
-    // http://localhost:8080/anyAccidentOverHere?lat=36.2152214&long=-94.4473324&speedOfVehicle=55
+    // http://localhost:8080/anyAccidentOverHere?lat=36.2152214&lon=-94.4473324&speedOfVehicle=55
     @RequestMapping("/anyAccidentOverHere")
     public AnyAccidentResponse anyAccidentOverHere(@RequestParam(value = "lon") double lon,
                                                    @RequestParam(value = "lat") double lat,
-                                                   @RequestParam(value = "speedOfVehicle")
-                                                           int speedOfVehicle
+                                                   @RequestParam(value = "speedOfVehicle") int speedOfVehicle
     ) throws CloneNotSupportedException
 
     {
-
-        AccidentMetrics accidentMetrics = feedAccidentMetrics(new AccidentMetrics(new Coordinates(lon, lat), speedOfVehicle));
-        //return new AnyAccidentResponse(counter.incrementAndGet(), false);
-        return new AnyAccidentResponse(accidentMetrics.getWeatherCondition() + "=====" + accidentMetrics.getRoadCondition());
+        AccidentMetrics accidentMetrics = querySpeedLimitData(queryWeatherData(new AccidentMetrics(new Coordinates(lon, lat), speedOfVehicle)));
+        return new AnyAccidentResponse(accidentMetrics.getWeatherCondition() + "=====" + accidentMetrics.getRoadCondition() + "==========" + accidentMetrics.getSpeedLimitOfRoad());
     }
 
-    public AccidentMetrics feedAccidentMetrics(AccidentMetrics accidentMetrics) throws CloneNotSupportedException {
-        System.out.println("Sonuclar Aliniyor");
+    public AccidentMetrics queryWeatherData(AccidentMetrics metrics) throws CloneNotSupportedException {
+
+        System.out.println("......................................................");
+        AccidentMetrics accidentMetrics = (AccidentMetrics) metrics.clone();
+        WeatherDataApiResponse weatherDataApiResponse = new WeatherDataApi(accidentMetrics.getCoordinates()).query();
+        accidentMetrics.setWeatherCondition(String.valueOf(weatherDataApiResponse.getMain().getTemp()));
+        System.out.println("Data, after queried for Weather Data ");
         System.out.println(accidentMetrics.toString());
-        AccidentMetrics feededAccidentMetrics = (AccidentMetrics) accidentMetrics.clone();
-        System.out.println(feededAccidentMetrics.toString());
-        WeatherDataApi weatherApi = new WeatherDataApi(feededAccidentMetrics.getCoordinates());
-        WeatherDataApiResponse weatherDataApiResponse = weatherApi.query();
-        feededAccidentMetrics.setWeatherCondition(String.valueOf(weatherDataApiResponse.getMain().getTemp()));
-        System.out.println(weatherDataApiResponse.toString());
-        return feededAccidentMetrics;
+        return accidentMetrics;
+    }
+
+    public AccidentMetrics querySpeedLimitData(AccidentMetrics metrics) throws CloneNotSupportedException {
+        System.out.println("......................................................");
+        AccidentMetrics accidentMetrics = (AccidentMetrics) metrics.clone();
+        /* uncomment it in order to get data  From Google */
+        //GoogleRoadsApiResponse googleRoadsApiResponse = new GoogleRoadsApi(accidentMetrics.getCoordinates()).query();
+        //accidentMetrics.setSpeedLimitOfRoad(googleRoadsApiResponse.getGoogleRoadsSpeedLimits().getSpeedLimit());
+
+        /* uncomment it in order to get data  From Here */
+        HereRouteDataApiResponse hereRouteDataApiResponse = new HereRouteApi(accidentMetrics.getCoordinates()).query();
+        accidentMetrics.setSpeedLimitOfRoad(hereRouteDataApiResponse.getResponse().getLink()[0].getSpeedLimit());
+        System.out.println("Data, after queried for Road Speed Limit Data ");
+        System.out.println(accidentMetrics.toString());
+        return accidentMetrics;
     }
 
 

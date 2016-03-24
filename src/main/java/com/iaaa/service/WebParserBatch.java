@@ -4,27 +4,20 @@ package com.iaaa.service;
  * Created by jackalhan on 3/21/16.
  */
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
-import ch.qos.logback.core.net.SyslogOutputStream;
 import com.google.maps.GeoApiContext;
-import com.google.maps.GeocodingApiRequest;
 import com.google.maps.model.GeocodingResult;
 import com.iaaa.dto.Accident;
-import com.iaaa.dto.Vehicle;
-import com.iaaa.outsource.GeocodingApi;
+import com.iaaa.outsource.GoogleGeocodingApi;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +28,7 @@ public class WebParserBatch {
     private String baseLink = "http://www.asp.state.ar.us/fatal/";
     private String reportLinks = baseLink + "index.php?do=reportsLinks&year=";
     private int year = 2004;
-    @Scheduled(fixedRate = 1000000000)
+    //@Scheduled(fixedRate = 1000000000)
     public void parseAllReportLinks() {
 
         try {
@@ -135,7 +128,7 @@ public class WebParserBatch {
         System.out.println("Before Google");
         System.out.println(accident.toString());
         GeoApiContext context = new GeoApiContext().setApiKey("AIzaSyDZao4FbodjtM4xsbCMAkESki8Mc4lYy3U");
-        GeocodingResult[] results =  GeocodingApi.geocode(context, accident.getLocation() + "," + accident.getState()).await();
+        GeocodingResult[] results =  GoogleGeocodingApi.geocode(context, accident.getLocation() + "," + accident.getState()).await();
         accident.setFormattedLocation(results[0].formattedAddress);
         accident.setLocationLat(String.valueOf(results[0].geometry.location.lat));
         accident.setLocationLong(String.valueOf(results[0].geometry.location.lng));

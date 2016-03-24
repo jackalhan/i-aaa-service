@@ -9,7 +9,7 @@ public class AccidentMetrics implements Cloneable {
     private int speedOfVehicle;
     private String weatherCondition;
     private String roadCondition;
-    private int speedLimitOfRoad;
+    private double speedLimitOfRoad;
 
     public Coordinates getCoordinates() {
         return coordinates;
@@ -40,11 +40,11 @@ public class AccidentMetrics implements Cloneable {
         return roadCondition;
     }
 
-    public int getSpeedLimitOfRoad() {
+    public double getSpeedLimitOfRoad() {
         return speedLimitOfRoad;
     }
 
-    public void setSpeedLimitOfRoad(int speedLimitOfRoad) {
+    public void setSpeedLimitOfRoad(double speedLimitOfRoad) {
         this.speedLimitOfRoad = speedLimitOfRoad;
     }
 

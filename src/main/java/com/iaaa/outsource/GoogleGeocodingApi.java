@@ -31,8 +31,8 @@ import com.google.maps.model.LatLng;
  * @see <a href="https://developers.google.com/maps/documentation/geocoding/">Geocoding
  * documentation</a>.
  */
-public class GeocodingApi {
-    private GeocodingApi() {
+public class GoogleGeocodingApi {
+    private GoogleGeocodingApi() {
     }
 
     /**
