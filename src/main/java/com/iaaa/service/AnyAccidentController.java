@@ -1,14 +1,17 @@
 package com.iaaa.service;
 
+import com.iaaa.dto.Accident;
 import com.iaaa.dto.AccidentMetrics;
 import com.iaaa.dto.AnyAccidentResponse;
 import com.iaaa.dto.Coordinates;
-import com.iaaa.outsource.GoogleRoadsApi;
+import com.iaaa.models.AccidentHistory;
 import com.iaaa.outsource.HereRouteApi;
 import com.iaaa.outsource.WeatherDataApi;
 import com.iaaa.outsource.dto.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.atomic.AtomicLong;
