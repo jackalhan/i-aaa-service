@@ -64,5 +64,4 @@ public class AnyAccidentController {
         return accidentMetrics;
     }
 
-
 }

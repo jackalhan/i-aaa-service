@@ -42,6 +42,20 @@ public class AccidentHistory {
     @NotNull
     private String roadCondition;
 
+    @NotNull
+    private Date insertTime;
+
+    @NotNull
+    private String location;
+
+    @NotNull
+    private String city;
+
+    @NotNull
+    private String county;
+
+    @NotNull
+    private String state;
 
     public long getId() {
         return id;
@@ -123,19 +137,64 @@ public class AccidentHistory {
         this.roadCondition = roadCondition;
     }
 
+    public Date getInsertTime() {
+        return insertTime;
+    }
+
+    public void setInsertTime(Date insertTime) {
+        this.insertTime = insertTime;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getCounty() {
+        return county;
+    }
+
+    public void setCounty(String county) {
+        this.county = county;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
     @Override
     public String toString() {
         return "AccidentHistory{" +
-                "id=" + id +
-                ", fatalNumber='" + fatalNumber + '\'' +
-                ", accidentNumber='" + accidentNumber + '\'' +
-                ", lon=" + lon +
-                ", lat=" + lat +
-                ", accidentTime=" + accidentTime +
-                ", numberOfKilled=" + numberOfKilled +
-                ", numberOfInjured=" + numberOfInjured +
-                ", weatherCondition='" + weatherCondition + '\'' +
+                "state='" + state + '\'' +
+                ", county='" + county + '\'' +
+                ", city='" + city + '\'' +
+                ", location='" + location + '\'' +
+                ", insertTime=" + insertTime +
                 ", roadCondition='" + roadCondition + '\'' +
+                ", weatherCondition='" + weatherCondition + '\'' +
+                ", numberOfInjured=" + numberOfInjured +
+                ", numberOfKilled=" + numberOfKilled +
+                ", accidentTime=" + accidentTime +
+                ", lat=" + lat +
+                ", lon=" + lon +
+                ", accidentNumber=" + accidentNumber +
+                ", fatalNumber=" + fatalNumber +
+                ", id=" + id +
                 '}';
     }
 
@@ -146,8 +205,7 @@ public class AccidentHistory {
         this.id = id;
     }
 
-
-    public AccidentHistory(int fatalNumber, int accidentNumber, double lon, double lat, Date accidentTime, int numberOfKilled, int numberOfInjured, String weatherCondition, String roadCondition) {
+    public AccidentHistory(int fatalNumber, int accidentNumber, double lon, double lat, Date accidentTime, int numberOfKilled, int numberOfInjured, String weatherCondition, String roadCondition, Date insertTime, String location, String city, String county, String state) {
         this.fatalNumber = fatalNumber;
         this.accidentNumber = accidentNumber;
         this.lon = lon;
@@ -157,5 +215,10 @@ public class AccidentHistory {
         this.numberOfInjured = numberOfInjured;
         this.weatherCondition = weatherCondition;
         this.roadCondition = roadCondition;
+        this.insertTime = insertTime;
+        this.location = location;
+        this.city = city;
+        this.county = county;
+        this.state = state;
     }
 }

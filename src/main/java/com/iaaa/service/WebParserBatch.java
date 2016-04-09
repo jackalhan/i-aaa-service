@@ -7,6 +7,8 @@ package com.iaaa.service;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -25,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.datetime.DateFormatter;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class WebParserBatch {
@@ -158,10 +161,16 @@ public class WebParserBatch {
                 accidentHistory.setAccidentNumber(Integer.parseInt(accident.getAccidentNumber()));
                 accidentHistory.setLon(Double.parseDouble(accident.getLocationLong()));
                 accidentHistory.setLat(Double.parseDouble(accident.getLocationLat()));
-                accidentHistory.setAccidentTime(dateFormat.parse(accident.getAccidentDate() + ' ' + accident.getAccidentTime().toUpperCase().replace("A", " A").replace("P", " P")));
+                accidentHistory.setAccidentTime(formatter.parse(accident.getAccidentDate() + ' ' + accident.getAccidentTime().toUpperCase().replace("A", " A").replace("P", " P")));
                 accidentHistory.setNumberOfKilled(Integer.parseInt(accident.getNumberOfKilled()));
                 accidentHistory.setNumberOfInjured(Integer.parseInt(accident.getNumberOfInjured()));
-                ///DAHA DEVAMI VAR. MAPLENEREK ATILACAK DATALAR.
+                accidentHistory.setWeatherCondition(accident.getWeatherCondition());
+                accidentHistory.setRoadCondition(accident.getRoadCondition());
+                accidentHistory.setLocation(accident.getFormattedLocation());
+                accidentHistory.setCity(accident.getCity());
+                accidentHistory.setCounty(accident.getCounty());
+                accidentHistory.setState(accident.getState());
+                accidentHistory.setInsertTime(new Date());
                 accidentHistoryList.add(accidentHistory);
 
             } catch (Exception ex) {
@@ -170,21 +179,56 @@ public class WebParserBatch {
                 System.out.println(ex.toString());
             }
         }
-        return  accidentHistoryList;
+        return accidentHistoryList;
     }
 
-    public String create(List<AccidentHistory> accidentHistoryList) {
-        String accidentId = "";
+    public boolean isAlreadyInHistory(AccidentHistory accidentHistory) {
+        boolean result = false;
         try {
-            for (AccidentHistory accidentHist : accidentHistoryList) {
-                accidentHistoryDao.save(accidentHist);
-                accidentId = String.valueOf(accidentHist.getId());
+            Calendar calendar = Calendar.getInstance(); // this would default to now
+            calendar.add(Calendar.DAY_OF_MONTH, -7);
+
+            if (accidentHistoryDao.findAccidentByFatalAccidentNumberSince1Week(accidentHistory.getFatalNumber(), accidentHistory.getAccidentNumber(), calendar.getTime()).size() > 0) {
+                result = true;
+            } else {
+                result = false;
             }
 
+
         } catch (Exception ex) {
-            return "Error creating the user: " + ex.toString();
+            System.out.println(":::::::::: DB Query : isAlreadyInHistory Error ::::::::::::");
+            System.out.println("Data => " + accidentHistory.toString());
+            System.out.println(ex.toString());
+            result = true;
         }
-        return "User succesfully created with id = " + accidentId;
+        return result;
+    }
+
+    public void create(List<AccidentHistory> accidentHistoryList) {
+        String accidentId = "";
+        int totalSize, successCount, failCount, inDBCount;
+
+        totalSize = accidentHistoryList.size();
+        successCount = 0;
+        failCount = 0;
+        inDBCount = 0;
+        for (AccidentHistory accidentHist : accidentHistoryList) {
+            try {
+                if (!isAlreadyInHistory(accidentHist)) {
+                    accidentHistoryDao.save(accidentHist);
+                    successCount = successCount + 1;
+                } else {
+                    inDBCount = inDBCount + 1;
+                }
+            } catch (Exception ex) {
+                failCount = failCount + 1;
+                System.out.println(":::::::::: DB Query : create Error (" + failCount + ")::::::::::::");
+                System.out.println("Data => " + accidentHist.toString());
+                System.out.println(ex.toString());
+            }
+
+        }
+
     }
 
 
