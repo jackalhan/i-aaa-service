@@ -46,7 +46,7 @@ public class WebParserBatch {
             List<Accident> accidentList = new ArrayList<Accident>();
             Accident accident = null;
             Document document = null;
-            //do {
+            do {
             document = Jsoup.connect(reportLinks + year).
                     userAgent(userAgent)
                     .get();
@@ -54,14 +54,14 @@ public class WebParserBatch {
             Elements elements = document.select("a[href]");
             int i = 0;
             for (Element link : elements) {
-                //System.out.println("\n Validate link : " + link.attr("href"));
+                System.out.println("\n Validate link : " + link.attr("href"));
                 if (i == 25) {
 
                     i = 0;
                     TimeUnit.SECONDS.sleep(10);
                 }
-                //i++;
-                if (link.attr("href").contains("accident_number=595")) {
+                i++;
+                if (link.attr("href").contains("accident_number")) {
                         /*System.out.println("\n Accepted link : " + link.attr("href"));
                         System.out.println("\nlink : " + link.attr("href"));
                         System.out.println("\ntext : " + link.text());*/
@@ -70,8 +70,8 @@ public class WebParserBatch {
                     create(dataCleansing(accidentList));
                 }
             }
-            //    year++;
-            // } while (year <= 2016);
+                year++;
+            } while (year <= 2016);
 
             System.out.println(accidentList.size());
 

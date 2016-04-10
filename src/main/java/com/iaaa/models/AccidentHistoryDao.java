@@ -19,4 +19,11 @@ public interface AccidentHistoryDao extends CrudRepository<AccidentHistory, Long
     public List<AccidentHistory> findAccidentByFatalAccidentNumberSince1Week(@Param("fatalNumber") int fatalNumber,
                                                                              @Param("accidentNumber") int accidentNumber,
                                                                              @Param("insertTime") Date insertTime);
+
+
+    @Query("SELECT a FROM AccidentHistory a WHERE a.lat = :lat and a.lon= :lon")
+    public List<AccidentHistory> findAccidentByLatLon(@Param("lat") double lat,
+                                                      @Param("lon") double lon);
+
+
 }

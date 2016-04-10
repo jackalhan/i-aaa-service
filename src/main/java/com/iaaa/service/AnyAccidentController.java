@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -63,5 +65,75 @@ public class AnyAccidentController {
         System.out.println(accidentMetrics.toString());
         return accidentMetrics;
     }
+
+    @RequestMapping("/calculateCoordinatesInCircleArea")
+    public List<Coordinates> calculateCoordinatesInCircleArea(@RequestParam(value = "lon") double lon,
+                                                              @RequestParam(value = "lat") double lat,
+                                                              @RequestParam(value = "totalRadius") double totalRadius,
+                                                              @RequestParam(value = "radiusIncrement") double radiusIncrement,
+                                                              @RequestParam(value = "degreeIncrement") int degreeIncrement) {
+        System.out.println("......................................................");
+        System.out.println("Calculating New Coordinates within " + totalRadius + " mile(s) to " + lon + "," + lat);
+        List<Coordinates> coordinates = new ArrayList<Coordinates>();
+        for (double initialRadius = 0; initialRadius <= totalRadius; initialRadius = initialRadius + radiusIncrement) {
+            for (double initialDegree = 0; initialDegree <= 360; initialDegree = initialDegree + degreeIncrement) {
+                if (initialRadius > 0) {
+                    Coordinates coordinate = calculateCoordinateInCircleEdge(lon, lat, initialRadius, initialDegree);
+                    coordinates.add(coordinate);
+                }
+            }
+        }
+        System.out.println("Total found coordinates : " + coordinates.size());
+        return coordinates;
+    }
+
+    @RequestMapping("/calculateCoordinateInCircleEdge")
+    public Coordinates calculateCoordinateInCircleEdge(@RequestParam(value = "lon") double lon,
+                                                       @RequestParam(value = "lat") double lat,
+                                                       @RequestParam(value = "radius") double radius,
+                                                       @RequestParam(value = "degree") double degree) {
+        System.out.println("......................................................");
+        System.out.println("Calculating New Coordinates within " + radius + " mile(s) to " + lon + "," + lat + " with the degree " + degree);
+        double distance = radius / 3956;
+        Coordinates coordinate = new Coordinates();
+        double radiansOfDegree = Math.toRadians(degree);
+        double radiansOfLat = Math.toRadians(lat);
+
+        if (degree == 0) {
+            coordinate.setLat(lat + distance);
+            coordinate.setLon(lon + distance);
+        } else if (degree == 180) {
+            coordinate.setLat(lat - distance);
+            coordinate.setLon(lon - distance);
+        } else {
+
+            if (degree == 90) {
+
+                coordinate.setLat(Math.toDegrees(Math.asin(Math.sin(radiansOfLat) * Math.cos(distance))));
+
+            } else {
+                coordinate.setLat(Math.toDegrees(Math.asin((Math.sin(radiansOfLat) * Math.cos(distance)) + (Math.cos(radiansOfLat) * Math.sin(distance) * Math.cos(degree)))));
+            }
+            double radiansOfNewLat = Math.toRadians(coordinate.getLat());
+            double dlon = Math.atan2(Math.sin(radiansOfDegree) * Math.sin(distance) * Math.cos(radiansOfLat), Math.cos(distance) - (Math.sin(radiansOfLat) * Math.sin(radiansOfNewLat)));
+            double modLon = (lon - dlon + 180) % 360;
+            coordinate.setLon(modLon - 180);
+        }
+        System.out.print(" " + coordinate.toString());
+        return coordinate;
+
+    }
+
+/*    public Coordinates simlifyCoordinatesSet(List<Coordinates> coordinatesSet)
+    {
+
+
+    }*/
+
+/*
+    public double radiansOfPosition(double degree)
+    {
+        return degree * (Math.PI / 180);
+    }*/
 
 }
