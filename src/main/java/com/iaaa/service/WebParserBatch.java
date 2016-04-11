@@ -38,7 +38,7 @@ public class WebParserBatch {
     private int year = 2004;
     private final DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy hh:mm aa");
 
-    @Scheduled(fixedRate = 300000) //5 minutes
+    @Scheduled(fixedDelay = 300000000) //5 minutes
     public void parseAllReportLinks() {
 
         System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
