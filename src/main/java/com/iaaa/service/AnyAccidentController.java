@@ -10,6 +10,7 @@ import com.iaaa.models.AccidentHistoryDao;
 import com.iaaa.outsource.HereRouteApi;
 import com.iaaa.outsource.WeatherDataApi;
 import com.iaaa.outsource.dto.*;
+import org.joda.time.DateTimeComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,7 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -30,6 +34,8 @@ import java.util.stream.Collectors;
 public class AnyAccidentController {
 
     private final AtomicLong counter = new AtomicLong();
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private final SimpleDateFormat timeFormat =  new SimpleDateFormat("hh:mm:ss aa");
 
     // Rest sample query link
     // http://localhost:8080/anyAccidentOverHere?lat=36.2152214&lon=-94.4473324&speedOfVehicle=55
@@ -37,11 +43,56 @@ public class AnyAccidentController {
     public AnyAccidentResponse anyAccidentOverHere(@RequestParam(value = "lon") double lon,
                                                    @RequestParam(value = "lat") double lat,
                                                    @RequestParam(value = "speedOfVehicle") int speedOfVehicle
-    ) throws CloneNotSupportedException
+    ) throws CloneNotSupportedException, ParseException
 
     {
         AccidentMetrics accidentMetrics = querySpeedLimitData(queryWeatherData(new AccidentMetrics(new Coordinates(lon, lat), speedOfVehicle)));
+        List<AccidentHistory> accidentHistoryList = anyAccidentBasedOnCoordinates(accidentMetrics.getCoordinates().getLon(), accidentMetrics.getCoordinates().getLat());
+        ConcurrentHashMap<AccidentHistory, Integer> scoreList = new ConcurrentHashMap<>();
+        for (AccidentHistory accidentHistory : accidentHistoryList) {
+            /*
+               Recent Period : currentDate - 01/01/2012
+               Mid Period    : 12/31/2011  - 01/01/2008
+               Old Period    : 12/31/2007  - 01/01/2004
+             */
+            Date recentDataStart = dateFormat.parse("2012-01-01");
+            Date midDataStart = dateFormat.parse("2008-01-01");
+            Date oldDateStart = dateFormat.parse("2004-01-01");
 
+            int dataScore = 0;
+
+            if (accidentHistory.getAccidentTime().compareTo(recentDataStart) > 0) {
+                dataScore = 3;
+            } else if ((accidentHistory.getAccidentTime().compareTo(recentDataStart) < 0) && (accidentHistory.getAccidentTime().compareTo(midDataStart) > 0)) {
+                dataScore = 2;
+            } else {
+                dataScore = 1;
+            }
+
+            /*
+            *********************************************************
+            *********************************************************
+            */
+            /*
+              Early Morning : 4:01 AM - 8:00 AM
+              Morning       : 8:01 AM - 12:00 PM
+              Afternoon     : 12:01 PM - 5:00 PM
+              Evening       : 5:01 PM - 11:00 PM
+              Middle Night  : 11:01 PM - 4:00 PM
+            */
+            Date earlyMorningTimeStart = timeFormat.parse("4:00:01 AM");
+            Date morningTimeStart = timeFormat.parse("8:00:01 AM");
+            Date afternoonTimeStart = timeFormat.parse("12:00:01 PM");
+            Date eveningTimeStart = timeFormat.parse("5:00:01 PM");
+            Date middleNightTimeStart = timeFormat.parse("11:00:01 PM");
+            //Date accidentTime = timeFormat.parse(accidentHistory.getAccidentTime());
+
+/*
+            if (accidentHistory.getAccidentTime().af)
+            timeFormat
+
+            accidentHistory.getAccidentTime().ge*/
+        }
 
         return new AnyAccidentResponse(accidentMetrics.getWeatherCondition() + "=====" + accidentMetrics.getRoadCondition() + "==========" + accidentMetrics.getSpeedLimitOfRoad());
     }
@@ -49,12 +100,9 @@ public class AnyAccidentController {
     //http://localhost:8080/anyAccidentBasedOnCoordinates?lon=-94.0303089&lat=33.410011&speedOfVehicle=20
     @RequestMapping("/anyAccidentBasedOnCoordinates")
     public List<AccidentHistory> anyAccidentBasedOnCoordinates(@RequestParam(value = "lon") double lon,
-                                                               @RequestParam(value = "lat") double lat,
-                                                               @RequestParam(value = "speedOfVehicle") int speedOfVehicle
-    ) throws CloneNotSupportedException
+                                                               @RequestParam(value = "lat") double lat) throws CloneNotSupportedException
 
     {
-        AccidentMetrics accidentMetrics = querySpeedLimitData(queryWeatherData(new AccidentMetrics(new Coordinates(lon, lat), speedOfVehicle)));
         List<Coordinates> coordinatesList = getSimplifiedCoordinatesInCircleArea(lon, lat, 2, 0.01, 10);
         List<AccidentHistory> accidentHistoryList = new ArrayList<AccidentHistory>();
         for (Coordinates coordinates : coordinatesList) {
@@ -188,7 +236,7 @@ public class AnyAccidentController {
         } else {
             decimalFormat = new DecimalFormat("###.#");
         }
-        System.out.println("Simplifying New Coordinates according to " + decimalFormat+ " format");
+        System.out.println("Simplifying New Coordinates according to " + decimalFormat + " format");
         decimalFormat.setRoundingMode(RoundingMode.DOWN);
         Map<Double, Long> coordinatesByParsedLat = coordinatesSet.stream().
                 collect(Collectors.groupingBy(c -> Double.parseDouble(decimalFormat.format(c.getLat())), Collectors.mapping((Coordinates c) -> c, Collectors.counting())));
