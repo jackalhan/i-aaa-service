@@ -38,7 +38,7 @@ public class WebParserBatch {
     private int year = 2004;
     private final DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy hh:mm aa");
 
-    @Scheduled(fixedRate = 1000000000)
+    //@Scheduled(fixedRate = 1000000000)
     public void parseAllReportLinks() {
 
         try {

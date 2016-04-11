@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * Created by txcakaloglu on 3/23/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Coordinates implements Cloneable {
+public class Coordinates implements Cloneable{
     private double lon;
     private double lat;
 
@@ -47,4 +47,5 @@ public class Coordinates implements Cloneable {
     public void setLat(double lat) {
         this.lat = lat;
     }
+
 }
