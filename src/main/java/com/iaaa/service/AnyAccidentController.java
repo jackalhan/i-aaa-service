@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 @RestController
 public class AnyAccidentController {
 
-    private static final String template = "Hello, %s!";
     private final AtomicLong counter = new AtomicLong();
 
     // Rest sample query link
@@ -42,6 +41,7 @@ public class AnyAccidentController {
 
     {
         AccidentMetrics accidentMetrics = querySpeedLimitData(queryWeatherData(new AccidentMetrics(new Coordinates(lon, lat), speedOfVehicle)));
+
 
         return new AnyAccidentResponse(accidentMetrics.getWeatherCondition() + "=====" + accidentMetrics.getRoadCondition() + "==========" + accidentMetrics.getSpeedLimitOfRoad());
     }
@@ -64,7 +64,7 @@ public class AnyAccidentController {
                 sameRecordCounter = 0;
                 for (AccidentHistory accidentHistory : accidentHistoryList) {
                     if ((accidentHistory.getAccidentNumber() == accidentSubHistory.getAccidentNumber())
-                            && (accidentHistory.getFatalNumber() == accidentSubHistory.getFatalNumber())
+                            && (accidentHistory.getFatalNumber().equals(accidentSubHistory.getFatalNumber()))
                             && (accidentHistory.getAccidentTime().equals(accidentSubHistory.getAccidentTime()))) {
                         sameRecordCounter = sameRecordCounter + 1;
                     }
@@ -92,11 +92,11 @@ public class AnyAccidentController {
     public AccidentMetrics querySpeedLimitData(AccidentMetrics metrics) throws CloneNotSupportedException {
         System.out.println("......................................................");
         AccidentMetrics accidentMetrics = (AccidentMetrics) metrics.clone();
-        /* uncomment it in order to get data  From Google */
+        /* uncomment the following part it in order to get data  From Google */
         //GoogleRoadsApiResponse googleRoadsApiResponse = new GoogleRoadsApi(accidentMetrics.getCoordinates()).query();
         //accidentMetrics.setSpeedLimitOfRoad(googleRoadsApiResponse.getGoogleRoadsSpeedLimits().getSpeedLimit());
 
-        /* uncomment it in order to get data  From Here */
+        /* uncomment the following part it in order to get data From Here */
         HereRouteDataApiResponse hereRouteDataApiResponse = new HereRouteApi(accidentMetrics.getCoordinates()).query();
         accidentMetrics.setSpeedLimitOfRoad(hereRouteDataApiResponse.getResponse().getLink()[0].getSpeedLimit());
         System.out.println("Data, after queried for Road Speed Limit Data ");
@@ -181,9 +181,9 @@ public class AnyAccidentController {
         System.out.println("......................................................");
 
         DecimalFormat decimalFormat;
-        if (coordinatesSet.size() <= 3000) {
+        if (coordinatesSet.size() <= 1000) {
             decimalFormat = new DecimalFormat("###.###");
-        } else if (coordinatesSet.size() > 3000 && coordinatesSet.size() <= 10000) {
+        } else if (coordinatesSet.size() > 1000 && coordinatesSet.size() <= 10000) {
             decimalFormat = new DecimalFormat("###.##");
         } else {
             decimalFormat = new DecimalFormat("###.#");

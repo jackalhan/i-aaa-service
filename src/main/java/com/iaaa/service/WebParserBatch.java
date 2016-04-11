@@ -38,8 +38,28 @@ public class WebParserBatch {
     private int year = 2004;
     private final DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy hh:mm aa");
 
-    //@Scheduled(fixedRate = 1000000000)
+    @Scheduled(fixedRate = 300000) //5 minutes
     public void parseAllReportLinks() {
+
+        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+
 
         try {
 
@@ -47,29 +67,29 @@ public class WebParserBatch {
             Accident accident = null;
             Document document = null;
             do {
-            document = Jsoup.connect(reportLinks + year).
-                    userAgent(userAgent)
-                    .get();
+                document = Jsoup.connect(reportLinks + year).
+                        userAgent(userAgent)
+                        .get();
 
-            Elements elements = document.select("a[href]");
-            int i = 0;
-            for (Element link : elements) {
-                System.out.println("\n Validate link : " + link.attr("href"));
-                if (i == 25) {
+                Elements elements = document.select("a[href]");
+                int i = 0;
+                for (Element link : elements) {
+                    System.out.println("\n Validate link : " + link.attr("href"));
+                    if (i == 25) {
 
-                    i = 0;
-                    TimeUnit.SECONDS.sleep(10);
-                }
-                i++;
-                if (link.attr("href").contains("accident_number")) {
+                        i = 0;
+                        TimeUnit.SECONDS.sleep(15);
+                    }
+                    i++;
+                    if (link.attr("href").contains("accident_number")) {
                         /*System.out.println("\n Accepted link : " + link.attr("href"));
                         System.out.println("\nlink : " + link.attr("href"));
                         System.out.println("\ntext : " + link.text());*/
-                    accident = parseReport(link.attr("href"));
-                    accidentList.add(accident);
-                    create(dataCleansing(accidentList));
+                        accident = parseReport(link.attr("href"));
+                        accidentList.add(accident);
+                        create(dataCleansing(accidentList));
+                    }
                 }
-            }
                 year++;
             } while (year <= 2016);
 
@@ -156,21 +176,71 @@ public class WebParserBatch {
                 accidentHistory = new AccidentHistory();
                 //Whereas this (using || instead of |) is short-circuiting - if the first condition evaluates to true, the second is not evaluated.
                 //if (accident.getFatalNumber() == null | accident.getFatalNumber().length() == 0) {
-                accidentHistory.setFatalNumber(Integer.parseInt(accident.getFatalNumber()));
-                //}
+                accidentHistory.setFatalNumber(accident.getFatalNumber());
                 accidentHistory.setAccidentNumber(Integer.parseInt(accident.getAccidentNumber()));
                 accidentHistory.setLon(Double.parseDouble(accident.getLocationLong()));
                 accidentHistory.setLat(Double.parseDouble(accident.getLocationLat()));
-                accidentHistory.setAccidentTime(formatter.parse(accident.getAccidentDate() + ' ' + accident.getAccidentTime().toUpperCase().replace("A", " A").replace("P", " P")));
-                accidentHistory.setNumberOfKilled(Integer.parseInt(accident.getNumberOfKilled()));
-                accidentHistory.setNumberOfInjured(Integer.parseInt(accident.getNumberOfInjured()));
+                try {
+                    accidentHistory.setAccidentTime(formatter.parse(accident.getAccidentDate() + ' ' + accident.getAccidentTime().toUpperCase().replace("A", " A").replace("P", " P")));
+                } catch (Exception ex) {
+                    String newAccidentTime = null;
+                    try {
+                        if (!((accident.getAccidentTime() == null) || (accident.getAccidentTime().contains(""))))
+                        {
+                            if (!accident.getAccidentTime().contains(":")) {
+                                if (accident.getAccidentTime().trim().length() == 5) {
+                                    newAccidentTime = "0" + accident.getAccidentTime().substring(0, 1) + ":" + accident.getAccidentTime().substring(1, 5);
+                                } else if (accident.getAccidentTime().trim().length() == 6) {
+                                    newAccidentTime = accident.getAccidentTime().substring(0, 2) + ":" + accident.getAccidentTime().substring(2, 6);
+                                }
+                            } else {
+                                if (accident.getAccidentTime().trim().length() == 7) {
+                                    newAccidentTime = accident.getAccidentTime().replace("P", "").replace("A", "");
+                                }
+                            }
+
+                        }
+                        else
+                        {
+                            newAccidentTime = "05:55pm";
+                        }
+                        accidentHistory.setAccidentTime(formatter.parse(accident.getAccidentDate() + ' ' + newAccidentTime.toUpperCase().replace("A", " A").replace("P", " P")));
+
+                    }
+                    catch (Exception ex1)
+                    {
+                        System.out.println(":::::::::: Cleansing Error EXCEPTION :::::::::::: AccidentNumber " + accident.getAccidentNumber());
+                        System.out.println(" ===============>" + newAccidentTime);
+                        System.out.println(ex1.toString());
+                    }
+                }
+
+                try {
+                    accidentHistory.setNumberOfKilled(Integer.parseInt(accident.getNumberOfKilled()));
+                }
+                catch (Exception ex)
+                {
+                    accidentHistory.setNumberOfKilled(0);
+                }
+
+                try {
+                    accidentHistory.setNumberOfInjured(Integer.parseInt(accident.getNumberOfInjured()));
+                }
+                catch (Exception ex)
+                {
+                    accidentHistory.setNumberOfInjured(0);
+                }
+
                 accidentHistory.setWeatherCondition(accident.getWeatherCondition());
                 accidentHistory.setRoadCondition(accident.getRoadCondition());
-                accidentHistory.setLocation(accident.getFormattedLocation());
+                accidentHistory.setLocation(accident.getLocation());
+                accidentHistory.setFormattedLocation(accident.getFormattedLocation());
+                accidentHistory.setAccidentScenario(accident.getAccidentScenario());
                 accidentHistory.setCity(accident.getCity());
                 accidentHistory.setCounty(accident.getCounty());
                 accidentHistory.setState(accident.getState());
                 accidentHistory.setInsertTime(new Date());
+
                 accidentHistoryList.add(accidentHistory);
 
             } catch (Exception ex) {
@@ -217,6 +287,7 @@ public class WebParserBatch {
                 if (!isAlreadyInHistory(accidentHist)) {
                     accidentHistoryDao.save(accidentHist);
                     successCount = successCount + 1;
+                    System.out.println("Saving..........." + successCount);
                 } else {
                     inDBCount = inDBCount + 1;
                 }

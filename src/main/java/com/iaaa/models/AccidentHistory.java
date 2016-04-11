@@ -2,6 +2,7 @@ package com.iaaa.models;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 /**
@@ -16,7 +17,7 @@ public class AccidentHistory {
     private long id;
 
     @NotNull
-    private int fatalNumber;
+    private String fatalNumber;
 
     @NotNull
     private int accidentNumber;
@@ -30,32 +31,38 @@ public class AccidentHistory {
     @NotNull
     private Date accidentTime;
 
-    @NotNull
+
     private int numberOfKilled;
 
-    @NotNull
+
     private int numberOfInjured;
 
-    @NotNull
+
     private String weatherCondition;
 
-    @NotNull
+
     private String roadCondition;
 
     @NotNull
     private Date insertTime;
 
-    @NotNull
+
     private String location;
 
-    @NotNull
+
+    private String formattedLocation;
+
+
     private String city;
 
-    @NotNull
+
     private String county;
 
-    @NotNull
+
     private String state;
+
+    @Size(max = 4000)
+    private String accidentScenario;
 
     public long getId() {
         return id;
@@ -65,11 +72,11 @@ public class AccidentHistory {
         this.id = id;
     }
 
-    public int getFatalNumber() {
+    public String getFatalNumber() {
         return fatalNumber;
     }
 
-    public void setFatalNumber(int fatalNumber) {
+    public void setFatalNumber(String fatalNumber) {
         this.fatalNumber = fatalNumber;
     }
 
@@ -177,24 +184,42 @@ public class AccidentHistory {
         this.state = state;
     }
 
+    public String getFormattedLocation() {
+        return formattedLocation;
+    }
+
+    public void setFormattedLocation(String formattedLocation) {
+        this.formattedLocation = formattedLocation;
+    }
+
+    public String getAccidentScenario() {
+        return accidentScenario;
+    }
+
+    public void setAccidentScenario(String accidentScenario) {
+        this.accidentScenario = accidentScenario;
+    }
+
     @Override
     public String toString() {
         return "AccidentHistory{" +
-                "state='" + state + '\'' +
-                ", county='" + county + '\'' +
-                ", city='" + city + '\'' +
-                ", location='" + location + '\'' +
-                ", insertTime=" + insertTime +
-                ", roadCondition='" + roadCondition + '\'' +
-                ", weatherCondition='" + weatherCondition + '\'' +
-                ", numberOfInjured=" + numberOfInjured +
-                ", numberOfKilled=" + numberOfKilled +
-                ", accidentTime=" + accidentTime +
-                ", lat=" + lat +
-                ", lon=" + lon +
-                ", accidentNumber=" + accidentNumber +
+                "id=" + id +
                 ", fatalNumber=" + fatalNumber +
-                ", id=" + id +
+                ", accidentNumber=" + accidentNumber +
+                ", lon=" + lon +
+                ", lat=" + lat +
+                ", accidentTime=" + accidentTime +
+                ", numberOfKilled=" + numberOfKilled +
+                ", numberOfInjured=" + numberOfInjured +
+                ", weatherCondition='" + weatherCondition + '\'' +
+                ", roadCondition='" + roadCondition + '\'' +
+                ", insertTime=" + insertTime +
+                ", location='" + location + '\'' +
+                ", formattedLocation='" + formattedLocation + '\'' +
+                ", city='" + city + '\'' +
+                ", county='" + county + '\'' +
+                ", state='" + state + '\'' +
+                ", accidentScenario='" + accidentScenario + '\'' +
                 '}';
     }
 
@@ -205,7 +230,7 @@ public class AccidentHistory {
         this.id = id;
     }
 
-    public AccidentHistory(int fatalNumber, int accidentNumber, double lon, double lat, Date accidentTime, int numberOfKilled, int numberOfInjured, String weatherCondition, String roadCondition, Date insertTime, String location, String city, String county, String state) {
+    public AccidentHistory(String fatalNumber, int accidentNumber, String accidentScenario, double lon, double lat, String formattedLocation, Date accidentTime, int numberOfKilled, int numberOfInjured, String weatherCondition, String roadCondition, Date insertTime, String location, String city, String county, String state) {
         this.fatalNumber = fatalNumber;
         this.accidentNumber = accidentNumber;
         this.lon = lon;
@@ -217,8 +242,10 @@ public class AccidentHistory {
         this.roadCondition = roadCondition;
         this.insertTime = insertTime;
         this.location = location;
+        this.formattedLocation = formattedLocation;
         this.city = city;
         this.county = county;
         this.state = state;
+        this.accidentScenario = accidentScenario;
     }
 }

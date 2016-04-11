@@ -18,7 +18,7 @@ import java.util.List;
 public interface AccidentHistoryDao extends CrudRepository<AccidentHistory, Long>{
 
     @Query("SELECT a FROM AccidentHistory a WHERE a.fatalNumber = :fatalNumber and a.accidentNumber = :accidentNumber and a.insertTime >= :insertTime")
-    public List<AccidentHistory> findAccidentByFatalAccidentNumberSince1Week(@Param("fatalNumber") int fatalNumber,
+    public List<AccidentHistory> findAccidentByFatalAccidentNumberSince1Week(@Param("fatalNumber") String fatalNumber,
                                                                              @Param("accidentNumber") int accidentNumber,
                                                                              @Param("insertTime") Date insertTime);
 
