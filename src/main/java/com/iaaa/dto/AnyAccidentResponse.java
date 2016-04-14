@@ -20,6 +20,16 @@ public class AnyAccidentResponse {
         this.text = text;
     }
 
+
+    public AnyAccidentResponse(boolean anyAccident, int numberOfAccidents, int numberOfInjuredPeople, int numberOfKilledPeople, String text) {
+
+        this.anyAccident = anyAccident;
+        this.numberOfAccidents = numberOfAccidents;
+        this.numberOfInjuredPeople = numberOfInjuredPeople;
+        this.numberOfKilledPeople = numberOfKilledPeople;
+        this.text = text;
+    }
+
     public String getText() {
         return text;
     }

@@ -1,10 +1,14 @@
 package com.iaaa.dto;
 
+import java.util.Random;
+
 /**
  * Created by jackalhan on 3/22/16.
  */
 public class AccidentMetrics implements Cloneable {
 
+    private String[] roadConditionList = {"rain", "flood", "damp", "wet", "clear", "dry", "good", "fair", "grade", "pavement", "normal", "rual", "straight"
+    , "snow","ic","mist","slush", "oily", "foggy", "west", "slick", "dark", "smoke", "curve", "gravel"};
     private Coordinates coordinates;
     private int speedOfVehicle;
     private String weatherCondition;
@@ -33,7 +37,7 @@ public class AccidentMetrics implements Cloneable {
 
     public void setWeatherCondition(String weatherCondition) {
         this.weatherCondition = weatherCondition;
-        this.roadCondition = weatherCondition;
+        this.roadCondition = roadConditionList[new Random().nextInt(roadConditionList.length)];
     }
 
     public String getRoadCondition() {

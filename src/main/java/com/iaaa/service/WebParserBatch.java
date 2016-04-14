@@ -35,7 +35,7 @@ public class WebParserBatch {
     private String userAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
     private String baseLink = "http://www.asp.state.ar.us/fatal/";
     private String reportLinks = baseLink + "index.php?do=reportsLinks&year=";
-    private int year = 2004;
+    private int year = 2012;
     private final DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy hh:mm aa");
 
     @Scheduled(fixedDelay = 300000000) //5 minutes
@@ -67,29 +67,35 @@ public class WebParserBatch {
             Accident accident = null;
             Document document = null;
             do {
-                document = Jsoup.connect(reportLinks + year).
-                        userAgent(userAgent)
-                        .get();
+            document = Jsoup.connect(reportLinks + year).
+                    userAgent(userAgent)
+                    .get();
 
-                Elements elements = document.select("a[href]");
-                int i = 0;
-                for (Element link : elements) {
-                    System.out.println("\n Validate link : " + link.attr("href"));
-                    if (i == 25) {
+            Elements elements = document.select("a[href]");
+            int i = 0;
+            for (Element link : elements) {
+                System.out.println("\n Validate link : " + link.attr("href"));
+                if (i == 25) {
 
-                        i = 0;
-                        TimeUnit.SECONDS.sleep(15);
-                    }
-                    i++;
-                    if (link.attr("href").contains("accident_number")) {
-                        /*System.out.println("\n Accepted link : " + link.attr("href"));
-                        System.out.println("\nlink : " + link.attr("href"));
-                        System.out.println("\ntext : " + link.text());*/
+                    i = 0;
+                    TimeUnit.SECONDS.sleep(15);
+                }
+                i++;
+                if (link.attr("href").contains("accident_number=261")) {
+
+                    try {
                         accident = parseReport(link.attr("href"));
                         accidentList.add(accident);
                         create(dataCleansing(accidentList));
+                    } catch (Exception ex) {
+
+                        System.out.println(":::::::::: Google Location Fixing Error ::::::::::::");
+                        //System.out.println("Data => " + accident.toString());
+                        System.out.println(ex.toString());
+
                     }
                 }
+            }
                 year++;
             } while (year <= 2016);
 
@@ -159,12 +165,14 @@ public class WebParserBatch {
         System.out.println("Before Google");
         System.out.println(accident.toString());
         GeoApiContext context = new GeoApiContext().setApiKey("AIzaSyDZao4FbodjtM4xsbCMAkESki8Mc4lYy3U");
+
         GeocodingResult[] results = GoogleGeocodingApi.geocode(context, accident.getLocation() + "," + accident.getState()).await();
         accident.setFormattedLocation(results[0].formattedAddress);
         accident.setLocationLat(String.valueOf(results[0].geometry.location.lat));
         accident.setLocationLong(String.valueOf(results[0].geometry.location.lng));
         System.out.println("After Google");
         System.out.println(accident.toString());
+
         return accident;
     }
 
@@ -185,8 +193,7 @@ public class WebParserBatch {
                 } catch (Exception ex) {
                     String newAccidentTime = null;
                     try {
-                        if (!((accident.getAccidentTime() == null) || (accident.getAccidentTime().contains(""))))
-                        {
+                        if (!((accident.getAccidentTime() == null) || (accident.getAccidentTime().contains("")))) {
                             if (!accident.getAccidentTime().contains(":")) {
                                 if (accident.getAccidentTime().trim().length() == 5) {
                                     newAccidentTime = "0" + accident.getAccidentTime().substring(0, 1) + ":" + accident.getAccidentTime().substring(1, 5);
@@ -199,16 +206,12 @@ public class WebParserBatch {
                                 }
                             }
 
-                        }
-                        else
-                        {
+                        } else {
                             newAccidentTime = "05:55pm";
                         }
                         accidentHistory.setAccidentTime(formatter.parse(accident.getAccidentDate() + ' ' + newAccidentTime.toUpperCase().replace("A", " A").replace("P", " P")));
 
-                    }
-                    catch (Exception ex1)
-                    {
+                    } catch (Exception ex1) {
                         System.out.println(":::::::::: Cleansing Error EXCEPTION :::::::::::: AccidentNumber " + accident.getAccidentNumber());
                         System.out.println(" ===============>" + newAccidentTime);
                         System.out.println(ex1.toString());
@@ -217,17 +220,13 @@ public class WebParserBatch {
 
                 try {
                     accidentHistory.setNumberOfKilled(Integer.parseInt(accident.getNumberOfKilled()));
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     accidentHistory.setNumberOfKilled(0);
                 }
 
                 try {
                     accidentHistory.setNumberOfInjured(Integer.parseInt(accident.getNumberOfInjured()));
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     accidentHistory.setNumberOfInjured(0);
                 }
 
