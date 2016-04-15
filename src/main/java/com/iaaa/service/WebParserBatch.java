@@ -19,6 +19,7 @@ import com.iaaa.dto.Accident;
 import com.iaaa.models.AccidentHistory;
 import com.iaaa.models.AccidentHistoryDao;
 import com.iaaa.outsource.GoogleGeocodingApi;
+import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -29,40 +30,21 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
+//@Component
 public class WebParserBatch {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     private String userAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
     private String baseLink = "http://www.asp.state.ar.us/fatal/";
     private String reportLinks = baseLink + "index.php?do=reportsLinks&year=";
-    private int year = 2012;
+
     private final DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy hh:mm aa");
 
-    @Scheduled(fixedDelay = 300000000) //5 minutes
+    //@Scheduled(fixedDelay = 300000000) //5 minutes
     public void parseAllReportLinks() {
 
-        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-        System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-
-
+        DateTime dt = new DateTime();
         try {
-
+            int year = dt.getYear();
             List<Accident> accidentList = new ArrayList<Accident>();
             Accident accident = null;
             Document document = null;
@@ -97,7 +79,7 @@ public class WebParserBatch {
                 }
             }
                 year++;
-            } while (year <= 2016);
+            } while (year < year + 1);
 
             System.out.println(accidentList.size());
 

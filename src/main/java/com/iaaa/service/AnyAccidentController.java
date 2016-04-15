@@ -54,13 +54,13 @@ public class AnyAccidentController {
         ConcurrentHashMap<AccidentHistory, Double> scoreList = new ConcurrentHashMap<>();
 
         Date currentTime = new Date();
-        int currentDateScore = calculateDateScore(currentTime);
+        //int currentDateScore = calculateDateScore(currentTime);
         int currentTimeScore = calculateTimeScore(currentTime);
-        double currentSpeedScore = calculateSpeedScore(speedOfVehicle, accidentMetrics.getSpeedLimitOfRoad(), 0);
+        double currentSpeedScore = calculateSpeedScore(speedOfVehicle, accidentMetrics.getSpeedLimitOfRoad());
         int currentWeatherConditionScore = calculateWeatherConditionScore(accidentMetrics.getWeatherCondition());
-        int currentRoadConditionScore = calculateRoadConditionScore(accidentMetrics.getRoadCondition());
+        double currentRoadConditionScore = calculateRoadConditionScore(accidentMetrics.getRoadCondition());
 
-        double currentTotalScore = currentDateScore + currentTimeScore + currentSpeedScore + currentWeatherConditionScore + currentRoadConditionScore;
+        double currentTotalScore = currentTimeScore + currentSpeedScore + currentWeatherConditionScore + currentRoadConditionScore;
 
         for (AccidentHistory accidentHistory : accidentHistoryList) {
 
@@ -71,7 +71,11 @@ public class AnyAccidentController {
             int roadConditionScore = calculateRoadConditionScore(accidentHistory.getRoadCondition());
             double totalScore = dateScore + timeScore + weatherConditionScore + roadConditionScore;
 
-            if (currentTotalScore - ((currentTotalScore * 10) / 100) <= totalScore) {
+            if ((currentWeatherConditionScore >= weatherConditionScore) &&
+                    (currentRoadConditionScore >= roadConditionScore ) &&
+                    (currentSpeedScore >= 0) &&
+                    (dateScore >= 3) &&
+                    ( currentTimeScore >= timeScore)) {
                 System.out.println(" ::::::::::::::::::::::::::::::::::::::::::::");
                 System.out.println(" Current Total Score => " + currentTotalScore);
                 System.out.println(" Accident History Score => " + totalScore);
@@ -82,14 +86,16 @@ public class AnyAccidentController {
         int accidentCount = scoreList.size();
         int numberOfInjured = 0;
         int numberOfKilled = 0;
+        boolean hasAccident = false;
         for (ConcurrentHashMap.Entry<AccidentHistory, Double> entry : scoreList.entrySet()) {
             numberOfInjured = numberOfInjured + entry.getKey().getNumberOfInjured();
             numberOfKilled = numberOfKilled + entry.getKey().getNumberOfKilled();
+            hasAccident = true;
         }
 
 
         return new AnyAccidentResponse(
-                true,
+                hasAccident,
                 accidentCount,
                 numberOfInjured,
                 numberOfKilled,
@@ -151,7 +157,7 @@ public class AnyAccidentController {
 
     }
 
-    private double calculateSpeedScore(int speedOfVehicle, double speedLimit, double initialScore) {
+    private double calculateSpeedScore(int speedOfVehicle, double speedLimit) {
          /*
             *********************************************************
             *********************************************************
@@ -159,11 +165,11 @@ public class AnyAccidentController {
             /*
               Speed Limit Increment = 0.5
             */
-
-        double speedScore = initialScore;
-        if (speedLimit < speedOfVehicle) {
+        double incrementThreshold = speedOfVehicle - speedLimit;
+        double speedScore = 0;
+        for (int i = 0; i <= incrementThreshold; i = i + 5)
+        {
             speedScore = speedScore + 0.5;
-            speedScore = calculateSpeedScore(speedOfVehicle, speedLimit, speedScore);
         }
         return speedScore;
 
@@ -209,27 +215,27 @@ public class AnyAccidentController {
 
         DateTime earlyMorningTimeStart = new DateTime().withYear(accidentHistoryTime.getYear()).
                 withMonthOfYear(accidentHistoryTime.getMonthOfYear()).
-                withDayOfMonth(accidentHistoryTime.getMonthOfYear()).
+                withDayOfMonth(accidentHistoryTime.getDayOfMonth()).
                 withHourOfDay(4).withMinuteOfHour(0).withSecondOfMinute(1);
 
         DateTime morningTimeStart = new DateTime().withYear(accidentHistoryTime.getYear()).
                 withMonthOfYear(accidentHistoryTime.getMonthOfYear()).
-                withDayOfMonth(accidentHistoryTime.getMonthOfYear()).
+                withDayOfMonth(accidentHistoryTime.getDayOfMonth()).
                 withHourOfDay(8).withMinuteOfHour(0).withSecondOfMinute(1);
 
         DateTime afternoonTimeStart = new DateTime().withYear(accidentHistoryTime.getYear()).
                 withMonthOfYear(accidentHistoryTime.getMonthOfYear()).
-                withDayOfMonth(accidentHistoryTime.getMonthOfYear()).
+                withDayOfMonth(accidentHistoryTime.getDayOfMonth()).
                 withHourOfDay(12).withMinuteOfHour(0).withSecondOfMinute(1);
 
         DateTime eveningTimeStart = new DateTime().withYear(accidentHistoryTime.getYear()).
                 withMonthOfYear(accidentHistoryTime.getMonthOfYear()).
-                withDayOfMonth(accidentHistoryTime.getMonthOfYear()).
+                withDayOfMonth(accidentHistoryTime.getDayOfMonth()).
                 withHourOfDay(17).withMinuteOfHour(0).withSecondOfMinute(1);
 
         DateTime middleNightTimeStart = new DateTime().withYear(accidentHistoryTime.getYear()).
                 withMonthOfYear(accidentHistoryTime.getMonthOfYear()).
-                withDayOfMonth(accidentHistoryTime.getMonthOfYear()).
+                withDayOfMonth(accidentHistoryTime.getDayOfMonth()).
                 withHourOfDay(23).withMinuteOfHour(0).withSecondOfMinute(1);
 
 
@@ -238,13 +244,16 @@ public class AnyAccidentController {
         if (absoluteHourDiff > Math.abs(Hours.hoursBetween(accidentHistoryTime, morningTimeStart).getHours() % 24)) {
             absoluteHourDiff = Math.abs(Hours.hoursBetween(accidentHistoryTime, morningTimeStart).getHours() % 24);
             timeScore = 1;
-        } else if (absoluteHourDiff > Math.abs(Hours.hoursBetween(accidentHistoryTime, afternoonTimeStart).getHours() % 24)) {
+        }
+        if (absoluteHourDiff > Math.abs(Hours.hoursBetween(accidentHistoryTime, afternoonTimeStart).getHours() % 24)) {
             absoluteHourDiff = Math.abs(Hours.hoursBetween(accidentHistoryTime, afternoonTimeStart).getHours() % 24);
             timeScore = 2;
-        } else if (absoluteHourDiff > Math.abs(Hours.hoursBetween(accidentHistoryTime, eveningTimeStart).getHours() % 24)) {
+        }
+        if (absoluteHourDiff > Math.abs(Hours.hoursBetween(accidentHistoryTime, eveningTimeStart).getHours() % 24)) {
             absoluteHourDiff = Math.abs(Hours.hoursBetween(accidentHistoryTime, eveningTimeStart).getHours() % 24);
             timeScore = 5;
-        } else if (absoluteHourDiff > Math.abs(Hours.hoursBetween(accidentHistoryTime, middleNightTimeStart).getHours() % 24)) {
+        }
+        if (absoluteHourDiff > Math.abs(Hours.hoursBetween(accidentHistoryTime, middleNightTimeStart).getHours() % 24)) {
             absoluteHourDiff = Math.abs(Hours.hoursBetween(accidentHistoryTime, middleNightTimeStart).getHours() % 24);
             timeScore = 3;
         }
@@ -346,8 +355,8 @@ public class AnyAccidentController {
                                                         @RequestParam(value = "lat") double lat,
                                                         @RequestParam(value = "radius") double radius,
                                                         @RequestParam(value = "degree") double degree) {
-        System.out.println("......................................................");
-        System.out.println("Calculating New Coordinates within " + radius + " mile(s) to " + lon + "," + lat + " with the degree " + degree);
+       // System.out.println("......................................................");
+       // System.out.println("Calculating New Coordinates within " + radius + " mile(s) to " + lon + "," + lat + " with the degree " + degree);
         double distance = radius / 3956;
         Coordinates coordinate = new Coordinates();
         double radiansOfDegree = Math.toRadians(degree);
@@ -381,7 +390,7 @@ public class AnyAccidentController {
 
     public List<Coordinates> simplifyCoordinatesSet(List<Coordinates> coordinatesSet) {
 
-        System.out.println("......................................................");
+        //System.out.println("......................................................");
 
         DecimalFormat decimalFormat;
         if (coordinatesSet.size() <= 1000) {
@@ -391,7 +400,7 @@ public class AnyAccidentController {
         } else {
             decimalFormat = new DecimalFormat("###.#");
         }
-        System.out.println("Simplifying New Coordinates according to " + decimalFormat + " format");
+        //System.out.println("Simplifying New Coordinates according to " + decimalFormat + " format");
         decimalFormat.setRoundingMode(RoundingMode.DOWN);
         Map<Double, Long> coordinatesByParsedLat = coordinatesSet.stream().
                 collect(Collectors.groupingBy(c -> Double.parseDouble(decimalFormat.format(c.getLat())), Collectors.mapping((Coordinates c) -> c, Collectors.counting())));
