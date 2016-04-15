@@ -355,8 +355,8 @@ public class AnyAccidentController {
                                                         @RequestParam(value = "lat") double lat,
                                                         @RequestParam(value = "radius") double radius,
                                                         @RequestParam(value = "degree") double degree) {
-       // System.out.println("......................................................");
-       // System.out.println("Calculating New Coordinates within " + radius + " mile(s) to " + lon + "," + lat + " with the degree " + degree);
+        System.out.println("......................................................");
+        System.out.println("Calculating New Coordinates within " + radius + " mile(s) to " + lon + "," + lat + " with the degree " + degree);
         double distance = radius / 3956;
         Coordinates coordinate = new Coordinates();
         double radiansOfDegree = Math.toRadians(degree);
@@ -390,7 +390,7 @@ public class AnyAccidentController {
 
     public List<Coordinates> simplifyCoordinatesSet(List<Coordinates> coordinatesSet) {
 
-        //System.out.println("......................................................");
+        System.out.println("......................................................");
 
         DecimalFormat decimalFormat;
         if (coordinatesSet.size() <= 1000) {
@@ -400,7 +400,7 @@ public class AnyAccidentController {
         } else {
             decimalFormat = new DecimalFormat("###.#");
         }
-        //System.out.println("Simplifying New Coordinates according to " + decimalFormat + " format");
+        System.out.println("Simplifying New Coordinates according to " + decimalFormat + " format");
         decimalFormat.setRoundingMode(RoundingMode.DOWN);
         Map<Double, Long> coordinatesByParsedLat = coordinatesSet.stream().
                 collect(Collectors.groupingBy(c -> Double.parseDouble(decimalFormat.format(c.getLat())), Collectors.mapping((Coordinates c) -> c, Collectors.counting())));
