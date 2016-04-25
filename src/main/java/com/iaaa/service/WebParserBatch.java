@@ -46,7 +46,7 @@ public class WebParserBatch {
     public void parseAllReportLinks() {
 
         LocalDate date = LocalDate.now();
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("MM/dd/yyyy hh24:nnn:ss");
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("MM/dd/yyyy hh24:mm:ss");
         String str = date.toString(fmt);
 
         System.out.println(" ************************************************************ ");
