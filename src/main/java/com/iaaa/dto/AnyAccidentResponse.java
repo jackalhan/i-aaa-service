@@ -91,4 +91,16 @@ public class AnyAccidentResponse {
     public void setNumberOfKilledPeople(int numberOfKilledPeople) {
         this.numberOfKilledPeople = numberOfKilledPeople;
     }
+
+    @Override
+    public String toString() {
+        return "AnyAccidentResponse{" +
+                "id=" + id +
+                ", anyAccident=" + anyAccident +
+                ", numberOfAccidents=" + numberOfAccidents +
+                ", numberOfInjuredPeople=" + numberOfInjuredPeople +
+                ", numberOfKilledPeople=" + numberOfKilledPeople +
+                ", text='" + text + '\'' +
+                '}';
+    }
 }

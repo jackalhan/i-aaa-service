@@ -41,7 +41,7 @@ public class AnyAccidentController {
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss aa");
 
     // Rest sample query link
-    // http://localhost:8080/anyAccidentOverHere?lat=36.2152214&lon=-94.4473324&speedOfVehicle=55
+    ///anyAccidentOverHere?lat=36.2152214&lon=-94.4473324&speedOfVehicle=55
     @RequestMapping("/anyAccidentOverHere")
     public AnyAccidentResponse anyAccidentOverHere(@RequestParam(value = "lon") double lon,
                                                    @RequestParam(value = "lat") double lat,
@@ -68,17 +68,25 @@ public class AnyAccidentController {
             int dateScore = calculateDateScore(accidentHistory.getAccidentTime());
             int timeScore = calculateTimeScore(accidentHistory.getAccidentTime());
             int weatherConditionScore = calculateWeatherConditionScore(accidentHistory.getWeatherCondition());
-            int roadConditionScore = calculateRoadConditionScore(accidentHistory.getRoadCondition());
+            double roadConditionScore = calculateRoadConditionScore(accidentHistory.getRoadCondition());
             double totalScore = dateScore + timeScore + weatherConditionScore + roadConditionScore;
+
+            System.out.println(" ::::::::::::::::::::::::::::::::::::::::::::");
+            System.out.println(" Current Weather Score => " + currentWeatherConditionScore);
+            System.out.println(" Accident Weather Score => " + weatherConditionScore);
+            System.out.println(" Current Road Score => " + currentRoadConditionScore);
+            System.out.println(" Accident Road Score => " + roadConditionScore);
+            System.out.println(" Current Speed Score => " + currentSpeedScore);
+            System.out.println(" Accident Date Score => " + dateScore);
+            System.out.println(" Current Time Score => " + currentTimeScore);
+            System.out.println(" Accident Date Score => " + timeScore);
 
             if ((currentWeatherConditionScore >= weatherConditionScore) &&
                     (currentRoadConditionScore >= roadConditionScore ) &&
                     (currentSpeedScore >= 0) &&
                     (dateScore >= 3) &&
                     ( currentTimeScore >= timeScore)) {
-                System.out.println(" ::::::::::::::::::::::::::::::::::::::::::::");
-                System.out.println(" Current Total Score => " + currentTotalScore);
-                System.out.println(" Accident History Score => " + totalScore);
+
                 scoreList.put(accidentHistory, totalScore);
             }
         }
@@ -92,15 +100,18 @@ public class AnyAccidentController {
             numberOfKilled = numberOfKilled + entry.getKey().getNumberOfKilled();
             hasAccident = true;
         }
-
-
-        return new AnyAccidentResponse(
+        System.out.println(" ::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(accidentMetrics.toString());
+        AnyAccidentResponse anyAccidentResponse = new AnyAccidentResponse(
                 hasAccident,
                 accidentCount,
                 numberOfInjured,
                 numberOfKilled,
-                "BE CAREFUL! You are in a risk with current conditions. In the past total " + accidentCount + " accident(s) had occured with similar conditions including total number of " + numberOfInjured + " injured and " + numberOfKilled + " killed people."
-        );
+                "BE CAREFUL! You are in a risk with current conditions. In the past total " + accidentCount + " accident(s) had occured with similar conditions including total number of " + numberOfInjured + " injured and " + numberOfKilled + " killed people.");
+
+        System.out.println(" ::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println(anyAccidentResponse.toString());
+        return  anyAccidentResponse;
     }
 
     private int calculateWeatherConditionScore(String weatherCondition) {
@@ -261,7 +272,7 @@ public class AnyAccidentController {
 
     }
 
-    //http://localhost:8080/anyAccidentBasedOnCoordinates?lon=-94.0303089&lat=33.410011&speedOfVehicle=20
+    ///anyAccidentBasedOnCoordinates?lon=-94.0303089&lat=33.410011
     @RequestMapping("/anyAccidentBasedOnCoordinates")
     public List<AccidentHistory> anyAccidentBasedOnCoordinates(@RequestParam(value = "lon") double lon,
                                                                @RequestParam(value = "lat") double lat) throws CloneNotSupportedException
@@ -295,7 +306,7 @@ public class AnyAccidentController {
         System.out.println("......................................................");
         AccidentMetrics accidentMetrics = (AccidentMetrics) metrics.clone();
         WeatherDataApiResponse weatherDataApiResponse = new WeatherDataApi(accidentMetrics.getCoordinates()).query();
-        accidentMetrics.setWeatherCondition(String.valueOf(weatherDataApiResponse.getMain().getTemp()));
+        accidentMetrics.setWeatherCondition(String.valueOf(weatherDataApiResponse.getWeather()[0].getMain()));
         System.out.println("Data, after queried for Weather Data ");
         System.out.println(accidentMetrics.toString());
         return accidentMetrics;
@@ -316,6 +327,7 @@ public class AnyAccidentController {
         return accidentMetrics;
     }
 
+    ///calculateCoordinatesInCircleArea?lon=-92.375321&lat=34.670255&totalRadius=0.1&radiusIncrement=0.01&degreeIncrement=10
     @RequestMapping("/calculateCoordinatesInCircleArea")
     public List<Coordinates> calculateCoordinatesInCircleArea(@RequestParam(value = "lon") double lon,
                                                               @RequestParam(value = "lat") double lat,
@@ -337,7 +349,7 @@ public class AnyAccidentController {
         return coordinates;
     }
 
-    //http://localhost:8080/getSimplifiedCoordinatesInCircleArea?lon=-92.375321&lat=34.670255&totalRadius=0.1&radiusIncrement=0.01&degreeIncrement=10
+    ///getSimplifiedCoordinatesInCircleArea?lon=-92.375321&lat=34.670255&totalRadius=0.1&radiusIncrement=0.01&degreeIncrement=10
     @RequestMapping("/getSimplifiedCoordinatesInCircleArea")
     public List<Coordinates> getSimplifiedCoordinatesInCircleArea(@RequestParam(value = "lon") double lon,
                                                                   @RequestParam(value = "lat") double lat,
@@ -349,7 +361,7 @@ public class AnyAccidentController {
         return simplifyCoordinatesSet(calculateCoordinatesInCircleArea(lon, lat, totalRadius, radiusIncrement, degreeIncrement));
 
     }
-
+    ///calculateCoordinatesInCircleEdge?lon=-92.375321&lat=34.670255&radius=10.1&radius=0.1
     @RequestMapping("/calculateCoordinatesInCircleEdge")
     public Coordinates calculateCoordinatesInCircleEdge(@RequestParam(value = "lon") double lon,
                                                         @RequestParam(value = "lat") double lat,

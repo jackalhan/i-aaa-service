@@ -20,6 +20,9 @@ import com.iaaa.models.AccidentHistory;
 import com.iaaa.models.AccidentHistoryDao;
 import com.iaaa.outsource.GoogleGeocodingApi;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -36,15 +39,27 @@ public class WebParserBatch {
     private String userAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
     private String baseLink = "http://www.asp.state.ar.us/fatal/";
     private String reportLinks = baseLink + "index.php?do=reportsLinks&year=";
-
+    private int counter = 0;
     private final DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy hh:mm aa");
 
-    //@Scheduled(fixedDelay = 300000000) //5 minutes
+    @Scheduled(fixedDelay = 600000) //10 minutes
     public void parseAllReportLinks() {
 
-        DateTime dt = new DateTime();
+        LocalDate date = LocalDate.now();
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("MM/dd/yyyy hh24:nnn:ss");
+        String str = date.toString(fmt);
+
+        System.out.println(" ************************************************************ ");
+        System.out.println(" ****************** ACCIDENT REPORT PARSER  ***************** ");
+        System.out.println(" ************************************************************ ");
+        System.out.println(" Execution Time : " + str);
+        System.out.println(" Execution Counter : " + counter);
+        System.out.println(" ************************************************************ ");
+
+        counter++;
+
         try {
-            int year = dt.getYear();
+            int year = date.getYear();
             List<Accident> accidentList = new ArrayList<Accident>();
             Accident accident = null;
             Document document = null;
@@ -161,6 +176,7 @@ public class WebParserBatch {
     public List<AccidentHistory> dataCleansing(List<Accident> accidentList) {
         List<AccidentHistory> accidentHistoryList = new ArrayList<AccidentHistory>();
         AccidentHistory accidentHistory = null;
+        System.out.println("\nData Cleansing Starting ------------> ");
         for (Accident accident : accidentList) {
             try {
                 accidentHistory = new AccidentHistory();
