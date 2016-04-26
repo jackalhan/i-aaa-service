@@ -66,7 +66,7 @@ public class WebParserBatch {
             List<Accident> accidentList = new ArrayList<Accident>();
             Accident accident = null;
             Document document = null;
-            do {
+            //do {
             document = Jsoup.connect(reportLinks + year).
                     userAgent(userAgent)
                     .get();
@@ -81,7 +81,7 @@ public class WebParserBatch {
                     TimeUnit.SECONDS.sleep(15);
                 }
                 i++;
-                if (link.attr("href").contains("accident_number=261")) {
+                if (link.attr("href").contains("accident_number")) {
 
                     try {
                         accident = parseReport(link.attr("href"));
@@ -96,15 +96,27 @@ public class WebParserBatch {
                     }
                 }
             }
-                year++;
-            } while (year < year + 1);
+           //     year++;
+           // } while (year < year + 1);
 
             System.out.println(accidentList.size());
 
 
         } catch (Exception ex) {
+            System.out.println(" ****************** MAIN MODULE ERROR OCCURED ***************** ");
             ex.printStackTrace();
+            System.out.println(" ************************************************************ ");
         }
+        finally {
+            System.out.println(" ************************************************************ ");
+            System.out.println(" ****************** ACCIDENT REPORT ENDED  ***************** ");
+            System.out.println(" ************************************************************ ");
+            System.out.println(" Execution Time : " + str);
+            System.out.println(" Execution Counter : " + counter);
+            System.out.println(" ************************************************************ ");
+        }
+
+
     }
 
     public Accident parseReport(String href) throws Exception {
