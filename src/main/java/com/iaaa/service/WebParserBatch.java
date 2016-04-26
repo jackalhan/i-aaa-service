@@ -21,6 +21,7 @@ import com.iaaa.models.AccidentHistoryDao;
 import com.iaaa.outsource.GoogleGeocodingApi;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
@@ -45,9 +46,11 @@ public class WebParserBatch {
     @Scheduled(fixedDelay = 600000) //10 minutes
     public void parseAllReportLinks() {
 
-        LocalDate date = LocalDate.now();
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("MM/dd/yyyy hh24:mm:ss");
+        LocalDateTime date = LocalDateTime.now();
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("MM/dd/yyyy hh:mm:ss aa");
         String str = date.toString(fmt);
+
+        counter++;
 
         System.out.println(" ************************************************************ ");
         System.out.println(" ****************** ACCIDENT REPORT PARSER  ***************** ");
@@ -56,7 +59,7 @@ public class WebParserBatch {
         System.out.println(" Execution Counter : " + counter);
         System.out.println(" ************************************************************ ");
 
-        counter++;
+
 
         try {
             int year = date.getYear();
